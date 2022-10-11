@@ -1,0 +1,6 @@
+{
+  "appId": "es.huro",
+  "appName": "huroApp",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
