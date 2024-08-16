@@ -42,8 +42,6 @@ std::string to_string(double x)
 }
 void logDuration(int iteration,char *msg){
     double secs =ros::Time::now().toSec();
-
-    
     double duration=0;
     if(lastCaptureTime!=0){
         duration=secs-lastCaptureTime;
@@ -195,7 +193,10 @@ void huroMetricCallback(ros::NodeHandle &node_handle,
                       robot_model::RobotModelPtr &robot_model,
                       const geometry_msgs::PoseStamped::ConstPtr&  msg)
 {
-
+    if (!robot_model) {
+        ROS_ERROR("Null pointer detected, cannot proceed with planning or execution.");
+        return;
+    }
     planning_scene::PlanningScenePtr planning_scene(new planning_scene::PlanningScene(robot_model));
     planning_pipeline::PlanningPipelinePtr planning_pipeline( new planning_pipeline::PlanningPipeline(robot_model, node_handle, "planning_plugin", "request_adapters"));
     robot_state::RobotState& robot_state = planning_scene->getCurrentStateNonConst();
@@ -255,7 +256,11 @@ void huroMetricCallback(ros::NodeHandle &node_handle,
     if (res.error_code_.val == res.error_code_.SUCCESS)
     {
         i=1;
-        move_group.execute(response.trajectory);
+        try {
+            move_group.execute(response.trajectory);
+        } catch (const std::exception& e) {
+            ROS_ERROR("Failed to execute trajectory: %s", e.what());
+        }
     }
     
 }
