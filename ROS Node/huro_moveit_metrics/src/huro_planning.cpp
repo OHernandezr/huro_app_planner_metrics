@@ -41,15 +41,19 @@ std::string to_string(double x)
   return ss.str();
 }
 void logDuration(int iteration,char *msg){
-    double secs =ros::Time::now().toSec();
-    double duration=0;
-    if(lastCaptureTime!=0){
-        duration=secs-lastCaptureTime;
-    }
+    try {
+      double secs =ros::Time::now().toSec();
+      double duration=0;
+      if(lastCaptureTime!=0){
+          duration=secs-lastCaptureTime;
+      }
 
-    ROS_DEBUG_NAMED("huro_pcl", "{iteration:  { id: %d, time_seg: %f, duration_seg: %f, message: '%s'}}", 
-                    iteration,secs,duration, msg);
-    lastCaptureTime=secs;
+      ROS_DEBUG_NAMED("huro_pcl", "{iteration:  { id: %d, time_seg: %f, duration_seg: %f, message: '%s'}}", 
+                      iteration,secs,duration, msg);
+      lastCaptureTime=secs;
+    } catch (const std::exception &e) {
+        ROS_ERROR("Error in logDuration: %s", e.what());
+    }
 
 }
 
