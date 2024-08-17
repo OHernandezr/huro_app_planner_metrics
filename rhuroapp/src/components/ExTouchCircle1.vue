@@ -109,14 +109,11 @@
                   ros: this.ros,
                   name: '/hu_app_user_tracking', 
                   messageType: 'std_msgs/Bool'
-              });
+              });F
           
 
     },
     methods: {
-      connectROS2: function () {
-          alert('Hola');
-      },
       onTap: function(e){
         this.txtConsole= "onTap: (" + e.center.x+ ","+e.center.y+")";
         this.snackbar = true;
@@ -133,38 +130,48 @@
         this.text='the UR will make a move! E2';
       },
       connectROS: function () {
-          this.ros = new ROSLIB.Ros({
-            url : this.txtURLServer
-          });
-          this.ros.on('connection', () => {
-            this.vbConnectROS=true
-          });
-          this.ros.on('error', (error) => {
-            this.txtConsole='Something went wrong when trying to connect ROSBridge' + JSON.stringify(error)+' '+this.txtURLServer;
-            alert(this.txtConsole);
-            alert(JSON.stringify(error));
-               
-          });
-          this.ros.on('close', () => {
-              this.vbConnectROS=false;
-          });
+          try {
+              this.ros = new ROSLIB.Ros({
+                url : this.txtURLServer
+              });
+              this.ros.on('connection', () => {
+                this.vbConnectROS=true
+              });
+              this.ros.on('error', (error) => {
+                this.txtConsole='Something went wrong when trying to connect ROSBridge' + JSON.stringify(error)+' '+this.txtURLServer;
+                alert(this.txtConsole);
+                alert(JSON.stringify(error));
+                  
+              });
+              this.ros.on('close', () => {
+                  this.vbConnectROS=false;
+              });
 
-          this.topic = new ROSLIB.Topic({
-                  ros: this.ros,
-                  name: '/huro_app_circle', 
-                  messageType: 'std_msgs/Bool'
-              });
-          this.topicUserTracking = new ROSLIB.Topic({
-                  ros: this.ros,
-                  name: '/hu_app_user_tracking', 
-                  messageType: 'std_msgs/Bool'
-              });
+              this.topic = new ROSLIB.Topic({
+                      ros: this.ros,
+                      name: '/huro_app_circle', 
+                      messageType: 'std_msgs/Bool'
+                  });
+              this.topicUserTracking = new ROSLIB.Topic({
+                      ros: this.ros,
+                      name: '/hu_app_user_tracking', 
+                      messageType: 'std_msgs/Bool'
+                  });
+             } catch (error) {
+              this.handleConnectionError(error);
+            }
         },
         moveEndEffector: function () {
             this.text='the UR will make a move! [User Tracking]';
             let message = new ROSLIB.Message({data: true})
             this.topicUserTracking.publish(message)
         },
+          handleConnectionError(error) {
+              this.txtConsole = `Failed to connect to ROSBridge: ${JSON.stringify(error)} ${this.txtURLServer}`;
+              console.error(this.txtConsole);
+              alert(this.txtConsole);
+              this.vbConnectROS = false;
+            },
     } 
   }
 </script>
